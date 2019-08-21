@@ -72,7 +72,7 @@ gulp.task("watch", gulp.series("build", "browser-init", (done) => {
     gulp.watch("./src/index.html", gulp.series("html"));
     gulp.watch("./src/scss/*.scss", gulp.series("scss"));
     gulp.watch("./src/js/**/*.js", gulp.series("js"));
-    gulp.watch("./src/img/**/*.*", gulp.series("img"));
+    //gulp.watch("./src/img/**/*.*", gulp.series("img"));
     done();
 }));
 
