@@ -13,6 +13,9 @@ const imageminPngquant = require('imagemin-pngquant');
 const cache = require('gulp-cache');
 // BrowserSync
 const browserSync = require('browser-sync').create();
+//"clean" for build
+const del = require('del');
+//const clean = require('gulp-clean'); //?? - works not correctly
 
 
 gulp.task("html", (done) => {
@@ -44,8 +47,8 @@ gulp.task("js", (done) => {
     done();
 });
 
-gulp.task("img", (done) => {
-    gulp.src("./src/img/**/*.*")
+gulp.task("img", () => {
+    return gulp.src("./src/img/**/*.*")
     .pipe(cache(
         imagemin(
             [
@@ -56,24 +59,30 @@ gulp.task("img", (done) => {
             }
     ))
     .pipe(gulp.dest("./dist/img"));
-    done();
+    //done(); //works with return, or with done()
 });
 
-gulp.task("browser-init", (done) => {
-    browserSync.init({
+gulp.task("browser-init", () => {
+    return browserSync.init({
         server: "./dist"
     });
-    done();
+    //done();
 });
 
-gulp.task("build", gulp.series(gulp.parallel("html", "scss", "js", "img")));
+gulp.task("clean", () => del(['./dist/**']));  
+// return gulp.src('./dist/**/*', {read: false}).pipe(clean()); //works not correctly in this case
 
-gulp.task("watch", gulp.series("build", "browser-init", (done) => {
+gulp.task("build", gulp.series(
+    "clean",
+    gulp.parallel("html", "scss", "js", "img")
+    ));
+
+gulp.task("watch", (done) => {
     gulp.watch("./src/index.html", gulp.series("html"));
     gulp.watch("./src/scss/*.scss", gulp.series("scss"));
     gulp.watch("./src/js/**/*.js", gulp.series("js"));
     //gulp.watch("./src/img/**/*.*", gulp.series("img"));
     done();
-}));
+});
 
-gulp.task("default", gulp.series("watch"));
+gulp.task("default", gulp.series("watch", "img", "browser-init"));
